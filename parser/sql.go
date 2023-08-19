@@ -10,7 +10,6 @@ import (
 var (
 	createTablePrefix     = "CREATE TABLE"
 	createProcedurePrefix = "CREATE PROCEDURE"
-	createProcedureSuffix = "END"
 )
 
 // sql responsible for parsing SQL statements.
@@ -69,7 +68,7 @@ func (p *parser) createTable() error {
 			return nil
 		}
 
-		if unicode.IsSpace(r) || isNewLine(r) {
+		if r == semicolon {
 			break
 		}
 	}
@@ -102,14 +101,14 @@ func (p *parser) createProcedure() error {
 	for {
 		procedure += string(r)
 
-		// Check if the procedure name ends with the specified suffix.
-		if strings.HasSuffix(strings.ToUpper(procedure), createProcedureSuffix) {
-			break
-		}
-
 		r, eof = p.next()
 		if eof {
 			return nil
+		}
+
+		// Check if the procedure name ends with the specified suffix.
+		if r == semicolon {
+			break
 		}
 	}
 
