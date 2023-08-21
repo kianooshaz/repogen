@@ -3,117 +3,50 @@ package parser
 import (
 	"fmt"
 	"strings"
-	"unicode"
-)
-
-// Constants for prefixes and suffix used in SQL parsing.
-var (
-	createTablePrefix     = "CREATE TABLE"
-	createProcedurePrefix = "CREATE PROCEDURE"
 )
 
 // sql responsible for parsing SQL statements.
 func (p *parser) sql(r rune) error {
-	var eof bool
-	var query string
+	lineNumber := p.lineNumber
 
-	line := p.line
+	if r != 'c' && r != 'C' {
+		return fmt.Errorf("line %d of source file is undefind!\n", lineNumber)
+	}
 
-	// Iterate through the input runes.
-	for {
-		query += strings.ToLower(string(r))
+	query, eof := p.nextSemicolon()
+	if eof {
+		return fmt.Errorf("line %d of source file is undefind!\n", lineNumber)
+	}
 
-		// Check if the query matches the CREATE TABLE prefix.
-		if strings.ToUpper(query) == createTablePrefix {
-			return p.createTable()
-		}
+	query = string(r) + query
 
-		// Check if the query matches the CREATE PROCEDURE prefix.
-		if strings.ToUpper(query) == createProcedurePrefix {
-			return p.createProcedure()
-		}
+	words := strings.Fields(query)
+	if len(words) < 2 {
+		return fmt.Errorf("line %d of source file is undefind!\n", lineNumber)
+	}
 
-		r, eof = p.next()
-		// A line has started that did not meet our expectations
-		if eof {
-			return fmt.Errorf("line %d of source file is undefind!\n", line)
-		}
+	switch {
+	case strings.ToUpper(words[0]) == "CREATE" && strings.ToUpper(words[1]) == "TABLE":
+		return p.createTable(query)
+	case strings.ToUpper(words[0]) == "CREATE" && strings.ToUpper(words[1]) == "PROCEDURE":
+		return p.createProcedure(query)
+	default:
+		return fmt.Errorf("line %d of source file is undefind!\n", lineNumber)
 	}
 }
 
 // createTable responsible for parsing CREATE TABLE statements.
-func (p *parser) createTable() error {
-	var r rune
-	var eof bool
-	var table string
-
-	// Iterate through the runes to find the start of the table name.
-	for {
-		r, eof = p.next()
-		if eof {
-			return nil
-		}
-
-		if unicode.IsLetter(r) {
-			break
-		}
-	}
-
-	// Iterate through the runes to extract the table name.
-	for {
-		table += string(r)
-
-		r, eof = p.next()
-		if eof {
-			return nil
-		}
-
-		if r == semicolon {
-			break
-		}
-	}
-
-	//TODO
-	fmt.Println("table:", table)
-
+func (p *parser) createTable(query string) error {
+	// TODO implement
+	fmt.Println(strings.Repeat("-", 20))
+	fmt.Println(query)
 	return nil
 }
 
 // createProcedure responsible for parsing CREATE PROCEDURE statements.
-func (p *parser) createProcedure() error {
-	var r rune
-	var eof bool
-	var procedure string
-
-	// Iterate through the runes to find the start of the procedure statement.
-	for {
-		r, eof = p.next()
-		if eof {
-			return nil
-		}
-
-		if unicode.IsLetter(r) {
-			break
-		}
-	}
-
-	// Iterate through the runes to extract the procedure statement.
-	for {
-		procedure += string(r)
-
-		r, eof = p.next()
-		if eof {
-			return nil
-		}
-
-		// Check if the procedure name ends with the specified suffix.
-		if r == semicolon {
-			break
-		}
-	}
-
-	// TODO
-	fmt.Println("procedure: ", procedure)
-
+func (p *parser) createProcedure(query string) error {
+	// TODO implement
+	fmt.Println(strings.Repeat("-", 20))
+	fmt.Println(query)
 	return nil
 }
