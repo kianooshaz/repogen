@@ -9,8 +9,9 @@ import (
 // parser is a struct responsible for parsing the input source according to the specified protocol.
 type parser struct {
 	buffer     *bufio.Reader // Buffered reader to handle an input source.
-	lineNumber uint          // lineNumber counter to keep track of the current line being parsed.
-	lastSrc    string        // A string to store the last parsed source.
+	generator  protocol.Generator
+	lineNumber uint   // lineNumber counter to keep track of the current line being parsed.
+	lastSrc    string // A string to store the last parsed source.
 }
 
 // New creates a new instance of the parser.
